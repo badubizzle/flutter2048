@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
         primarySwatch: Colors.blue,
       ),
-      home: new MyHomePage(title: ''),
+      home: new MyHomePage(title: '2048'),
     );
   }
 }
@@ -45,11 +45,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   List<Widget> gameBoard = [];
 
+  String title;
+
   @override
   void initState() {
     super.initState();
     game = Game.withRowsAndColumns(rows: 4, columns: 4);
 
+    title = widget.title;
 //    var width = MediaQuery.of(context).size.width / 5.0;
 //
 //    gameBoard = game.board.map((c) {
@@ -77,7 +80,18 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return new Scaffold(
         appBar: new AppBar(
-          title: new Text(widget.title),
+          title: Text(title),
+//          leading: IconButton(
+//            onPressed: () {},
+//            icon: Icon(Icons.undo),
+//          ),
+//          actions: <Widget>[
+//            new FlatButton(
+//                onPressed: () {
+//                  resetGame();
+//                },
+//                child: Text("Reset"))
+//          ],
         ),
         body: _buildGameBoard());
   }
@@ -121,6 +135,33 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _buildGameBoard() {
     print(this.game);
 
+    var h = (MediaQuery.of(context).size.width);
+    if (game.isGameOver) {
+      return Scaffold(
+          body: Padding(
+        padding: const EdgeInsets.only(top: 25.0, left: 8.0, right: 8.0),
+        child: Container(
+            height: h,
+            child: Center(
+              child: new Column(
+                children: <Widget>[
+                  new Text(
+                    "Game Over!",
+                    style: TextStyle(fontSize: 30.0),
+                  ),
+                  new SizedBox(
+                    height: 10.0,
+                  ),
+                  new FlatButton(
+                      onPressed: () {
+                        resetGame();
+                      },
+                      child: Text("Reset Game"))
+                ],
+              ),
+            )),
+      ));
+    }
     var width = (MediaQuery.of(context).size.width / 5.0) / (game.columns / 4);
     var items = game.board.map((c) {
       return new Padding(
@@ -132,7 +173,6 @@ class _MyHomePageState extends State<MyHomePage> {
           duration: Duration(milliseconds: 300),
           width: width,
           height: width,
-          //color: _getColor(c),
           child: Text(
             "${c.value ?? ""}",
             style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
@@ -141,10 +181,6 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       );
     }).toList();
-
-//    for(int i =0;i<game.board.length; i++){
-//      _updateBoard(gameBoard[i], game.board[i]);
-//    }
 
     double verticalSwipeMaxWidthThreshold = 50.0;
     double verticalSwipeMinDisplacement = 50.0;
@@ -231,10 +267,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
         body: Padding(
       padding: const EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0),
-      child: Container(
-          decoration: BoxDecoration(
-              border: Border.all(width: 0.0), color: Colors.white),
-          child: grd),
+      child: Container(child: grd),
     ));
   }
 
@@ -244,6 +277,7 @@ class _MyHomePageState extends State<MyHomePage> {
       g.moveUp();
       game = g;
     });
+    checkGameOver();
   }
 
   void regenerateGame() {
@@ -262,6 +296,16 @@ class _MyHomePageState extends State<MyHomePage> {
       g.moveLeft();
       game = g;
     });
+
+    checkGameOver();
+  }
+
+  void checkGameOver() {
+    if (game.isGameOver) {
+      setState(() {
+        title = "Game Over";
+      });
+    }
   }
 
   void moveRight() {
@@ -270,6 +314,7 @@ class _MyHomePageState extends State<MyHomePage> {
       g.moveRight();
       game = g;
     });
+    checkGameOver();
   }
 
   void moveDown() {
@@ -278,7 +323,15 @@ class _MyHomePageState extends State<MyHomePage> {
       g.moveDown();
       game = g;
     });
+    checkGameOver();
   }
 
   void _updateBoard(Widget widget, GameCell cell) {}
+
+  void resetGame() {
+    setState(() {
+      var g = Game.withRowsAndColumns(rows: game.rows, columns: game.columns);
+      game = g;
+    });
+  }
 }

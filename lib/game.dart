@@ -63,6 +63,8 @@ class Game {
   int columns = 4;
   int totalMoves = 0;
 
+  bool _isOver = false;
+
   factory Game.withRowsAndColumns({int rows, int columns}) {
 //    var board = List.generate(rows * columns, (i) {
 //      return GameCell(i);
@@ -104,11 +106,8 @@ class Game {
         return c.toString();
       }).join("|");
     }).toList();
-    //List.generate(this.rows, (i) {
-    //  return "|${rows.getRange(i, i * this.rows).toList().join("|")}|";
-    //});
 
-    return parts.join("\n");
+    return parts.join("\n\nOver: ${_isOver}");
   }
 
   void move(MoveDirection direction) {
@@ -126,6 +125,127 @@ class Game {
         moveRight();
         break;
     }
+  }
+
+  bool get isGameOver => _isOver;
+
+  bool _checkGameOver() {
+    /*
+    0   1   2   3
+    4   5   6   7
+    8   9  10  11
+    12  13 14  15
+     */
+
+    bool isOver = true;
+
+    List<List<GameCell>> colItems = [];
+
+    List<List<GameCell>> rowItems = [];
+
+    for (var i = 0; i < this.board.length; i++) {
+      //check empty space
+      if (this.board[i].value == null) {
+        isOver = false;
+        print("Found null");
+        break;
+      }
+
+      //check column
+      var colIndex = i % this.columns;
+
+      if (colItems.length - 1 < colIndex) {
+        colItems.add([]);
+      }
+
+      if (colItems[colIndex] == null) {
+        colItems[colIndex] = [];
+      }
+
+      GameCell prevCol =
+          (colItems[colIndex].length > 0) ? colItems[colIndex].last : null;
+
+      if (prevCol != null && prevCol.value == this.board[i].value) {
+        isOver = false;
+
+        print("Col: ${prevCol} ${board[i]}");
+        break;
+      }
+
+      colItems[colIndex].add(this.board[i]);
+
+      //check row
+      var rowIndex = (i / this.rows).floor();
+      if (rowItems.length - 1 < rowIndex) {
+        rowItems.add([]);
+      }
+      if (rowItems[rowIndex] == null) {
+        rowItems[rowIndex] = [];
+      }
+      GameCell prevRow =
+          (rowItems[rowIndex].length > 0) ? rowItems[rowIndex].last : null;
+
+      if (prevRow != null && prevRow.value == this.board[i].value) {
+        isOver = false;
+
+        print("Row: ${prevRow} ${board[i]}");
+        break;
+      }
+
+      rowItems[rowIndex].add(this.board[i]);
+    }
+
+//    for (var i = 0; i < this.board.length; i++) {
+//      if (this.board[i].value == null) {
+//        isOver = false;
+//        break;
+//      }
+//
+//      int rowIndex = (i / this.rows).floor();
+//      int columnIndex = i % this.columns;
+//
+//      var currentItem = this.board[i];
+//
+//      try {
+//        var nextRow = this.board[rowIndex + i + 1];
+//        if (currentItem.value == nextRow.value) {
+//          isOver = false;
+//          break;
+//        }
+//      } catch (_) {}
+//
+//      try {
+//        var nextCol = this.board[columnIndex + this.columns];
+//        if (currentItem.value == nextCol.value) {
+//          isOver = false;
+//          break;
+//        }
+//      } catch (_) {}
+//
+//      /*
+//      if (items.length - 1 < colIndex) {
+//        items.add([]);
+//      }
+//      if (items[colIndex] == null) {
+//        items[colIndex] = [];
+//      }
+//      items[colIndex].add(this.board[i]);
+//
+//      if (items.length - 1 < rowIndex) {
+//        items.add([]);
+//      }
+//      if (items[rowIndex] == null) {
+//        items[rowIndex] = [];
+//      }
+//      items[rowIndex].add(this.board[i]);
+//      */
+//
+//    }
+
+    _isOver = isOver;
+
+    print("Is Over: ${_isOver}");
+    return _isOver;
   }
 
   void moveDown() {
@@ -269,8 +389,8 @@ class Game {
         GameCell nextItem;
         try {
           nextItem = row[i + 1];
-        } catch (e) {
-          print(e);
+        } catch (_) {
+          //print(e);
         }
 
         if (nextItem == null) {
@@ -350,6 +470,7 @@ class Game {
     }).toList();
 
     if (emptySlots.length == 0) {
+      _checkGameOver();
       return;
     }
 
@@ -362,6 +483,7 @@ class Game {
     //emptySlots.removeAt(index);
 
     if (emptySlots.length == 1) {
+      _checkGameOver();
       return;
     }
     emptySlots = emptySlots.where((cc) {
@@ -373,5 +495,7 @@ class Game {
     c = emptySlots[index];
 
     this.board[c.index] = c.copyWithValue(2);
+
+    _checkGameOver();
   }
 }
