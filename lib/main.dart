@@ -93,7 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
 //                child: Text("Reset"))
 //          ],
         ),
-        body: _buildGameBoard());
+        body: _buildGameBoard(context));
   }
 
   Color _getColor(GameCell c) {
@@ -132,35 +132,54 @@ class _MyHomePageState extends State<MyHomePage> {
     return Colors.green;
   }
 
-  Widget _buildGameBoard() {
+  Widget _buildGameBoard(BuildContext context) {
     print(this.game);
 
     var h = (MediaQuery.of(context).size.width);
-    if (game.isGameOver) {
-      return Scaffold(
-          body: Padding(
-        padding: const EdgeInsets.only(top: 25.0, left: 8.0, right: 8.0),
-        child: Container(
-            height: h,
-            child: Center(
-              child: new Column(
-                children: <Widget>[
-                  new Text(
-                    "Game Over!",
-                    style: TextStyle(fontSize: 30.0),
-                  ),
-                  new SizedBox(
-                    height: 10.0,
-                  ),
+    if (game.isGameOver()) {
+      Future.delayed(Duration(milliseconds: 100), () {
+        showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (c) {
+              return AlertDialog(
+                title: Text("Game Over"),
+                actions: <Widget>[
                   new FlatButton(
                       onPressed: () {
                         resetGame();
+                        Navigator.of(context).pop();
                       },
-                      child: Text("Reset Game"))
+                      child: Text("Reset")),
                 ],
-              ),
-            )),
-      ));
+              );
+            });
+      });
+
+//      return Scaffold(
+//          body: Padding(
+//        padding: const EdgeInsets.only(top: 25.0, left: 8.0, right: 8.0),
+//        child: Container(
+//            height: h,
+//            child: Center(
+//              child: new Column(
+//                children: <Widget>[
+//                  new Text(
+//                    "Game Over!",
+//                    style: TextStyle(fontSize: 30.0),
+//                  ),
+//                  new SizedBox(
+//                    height: 10.0,
+//                  ),
+//                  new FlatButton(
+//                      onPressed: () {
+//                        resetGame();
+//                      },
+//                      child: Text("Reset Game"))
+//                ],
+//              ),
+//            )),
+//      ));
     }
     var width = (MediaQuery.of(context).size.width / 5.0) / (game.columns / 4);
     var items = game.board.map((c) {
@@ -301,7 +320,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void checkGameOver() {
-    if (game.isGameOver) {
+    if (game.isGameOver()) {
       setState(() {
         title = "Game Over";
       });

@@ -74,8 +74,9 @@ class Game {
   }
 
   Game({this.rows, this.columns}) {
+    _isOver = false;
     this.loadGame();
-    this.regenerateGame();
+    this.regenerateGame(firstTime: true);
   }
 
 //  get rows {
@@ -127,7 +128,9 @@ class Game {
     }
   }
 
-  bool get isGameOver => _isOver;
+  bool isGameOver() {
+    return _isOver;
+  }
 
   bool _checkGameOver() {
     /*
@@ -462,7 +465,7 @@ class Game {
     return finalResult;
   }
 
-  void regenerateGame() {
+  void regenerateGame({bool firstTime = false}) {
     var r = math.Random();
 
     var emptySlots = this.board.where((c) {
@@ -481,6 +484,11 @@ class Game {
     this.board[c.index] = c.copyWithValue(2);
 
     //emptySlots.removeAt(index);
+
+    if (!firstTime) {
+      _checkGameOver();
+      return;
+    }
 
     if (emptySlots.length == 1) {
       _checkGameOver();
