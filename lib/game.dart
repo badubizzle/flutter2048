@@ -142,10 +142,6 @@ class Game {
 
     bool isOver = true;
 
-    List<List<GameCell>> colItems = [];
-
-    List<List<GameCell>> rowItems = [];
-
     for (var i = 0; i < this.board.length; i++) {
       //check empty space
       if (this.board[i].value == null) {
@@ -157,16 +153,10 @@ class Game {
       //check column
       var colIndex = i % this.columns;
 
-      if (colItems.length - 1 < colIndex) {
-        colItems.add([]);
-      }
-
-      if (colItems[colIndex] == null) {
-        colItems[colIndex] = [];
-      }
+      var nextCol = colIndex + this.columns * ((i / this.columns).floor() + 1);
 
       GameCell prevCol =
-          (colItems[colIndex].length > 0) ? colItems[colIndex].last : null;
+          (this.board.length > nextCol) ? this.board[nextCol] : null;
 
       if (prevCol != null && prevCol.value == this.board[i].value) {
         isOver = false;
@@ -175,75 +165,22 @@ class Game {
         break;
       }
 
-      colItems[colIndex].add(this.board[i]);
-
       //check row
-      var rowIndex = (i / this.rows).floor();
-      if (rowItems.length - 1 < rowIndex) {
-        rowItems.add([]);
-      }
-      if (rowItems[rowIndex] == null) {
-        rowItems[rowIndex] = [];
-      }
-      GameCell prevRow =
-          (rowItems[rowIndex].length > 0) ? rowItems[rowIndex].last : null;
+      //var rowIndex = (i / this.rows).floor();
 
-      if (prevRow != null && prevRow.value == this.board[i].value) {
-        isOver = false;
+      var rowIndex = (i + 1);
 
-        print("Row: ${prevRow} ${board[i]}");
-        break;
+      if (this.board.length > rowIndex && rowIndex % this.columns != 0) {
+        GameCell prevRow = this.board[rowIndex];
+
+        if (prevRow != null && prevRow.value == this.board[i].value) {
+          isOver = false;
+
+          print("Row: ${prevRow} ${board[i]}");
+          break;
+        }
       }
-
-      rowItems[rowIndex].add(this.board[i]);
     }
-
-//    for (var i = 0; i < this.board.length; i++) {
-//      if (this.board[i].value == null) {
-//        isOver = false;
-//        break;
-//      }
-//
-//      int rowIndex = (i / this.rows).floor();
-//      int columnIndex = i % this.columns;
-//
-//      var currentItem = this.board[i];
-//
-//      try {
-//        var nextRow = this.board[rowIndex + i + 1];
-//        if (currentItem.value == nextRow.value) {
-//          isOver = false;
-//          break;
-//        }
-//      } catch (_) {}
-//
-//      try {
-//        var nextCol = this.board[columnIndex + this.columns];
-//        if (currentItem.value == nextCol.value) {
-//          isOver = false;
-//          break;
-//        }
-//      } catch (_) {}
-//
-//      /*
-//      if (items.length - 1 < colIndex) {
-//        items.add([]);
-//      }
-//      if (items[colIndex] == null) {
-//        items[colIndex] = [];
-//      }
-//      items[colIndex].add(this.board[i]);
-//
-//      if (items.length - 1 < rowIndex) {
-//        items.add([]);
-//      }
-//      if (items[rowIndex] == null) {
-//        items[rowIndex] = [];
-//      }
-//      items[rowIndex].add(this.board[i]);
-//      */
-//
-//    }
 
     _isOver = isOver;
 
